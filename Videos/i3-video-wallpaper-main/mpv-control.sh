@@ -10,24 +10,24 @@ shift
 
 case "$command" in
   "toggle")
-    /home/francois/Videos/i3-video-wallpaper-main/control_toggle_video.sh
+    $HOME/Videos/i3-video-wallpaper-main/control_toggle_video.sh
     ;;
   "seek")
     if [ -z "$1" ]; then
       echo "ERROR: Missing seek time"
       exit 1
     fi
-    /home/francois/Videos/i3-video-wallpaper-main/control_seek_video.sh "$1"
+    $HOME/Videos/i3-video-wallpaper-main/control_seek_video.sh "$1"
     ;;
   "volume")
     if [ -z "$1" ]; then
       echo "ERROR: Missing volume adjustment"
       exit 1
     fi
-    /home/francois/Videos/i3-video-wallpaper-main/control_volume_video.sh "$1"
+    $HOME/Videos/i3-video-wallpaper-main/control_volume_video.sh "$1"
     ;;
   "stop")
-    /home/francois/Videos/i3-video-wallpaper-main/control_stop_video.sh
+    $HOME/Videos/i3-video-wallpaper-main/control_stop_video.sh
     ;;
   *)
     echo "ERROR: Unknown command $command"

@@ -3,7 +3,7 @@
 timer=10 #seconds
 
 # Directory for notification files
-current_dir="/home/francois/BatteryInfo"
+current_dir="$HOME/BatteryInfo"
 notification_sound="scifi-reject-notification.wav"
 
 

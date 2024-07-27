@@ -127,13 +127,13 @@ alias "c=xclip -sel c"
 # alias "cvp=xclip -o" #not actually usefull
 
 #to get logisim-evolution working without actually installing a package. 
-export PATH="/home/francois/Documents/Linux Documents/University (real):$PATH"
+export PATH="$HOME/Documents/Linux Documents/University (real):$PATH"
 alias "logism=/opt/logisim-evolution/bin/logisim-evolution"
 alias "logisim=/opt/logisim-evolution/bin/logisim-evolution"
 
-alias "mars=java -jar \"/home/francois/Documents/Linux Documents/University (real)/Semester 7/COMP 273/MARS.jar\""
+alias "mars=java -jar \"$HOME/Documents/Linux Documents/University (real)/Semester 7/COMP 273/MARS.jar\""
 
-alias "MARS=java -jar \"/home/francois/Documents/Linux Documents/University (real)/Semester 7/COMP 273/MARS.jar\""
+alias "MARS=java -jar \"$HOME/Documents/Linux Documents/University (real)/Semester 7/COMP 273/MARS.jar\""
 alias "journal=xournalpp"
 alias "xournal=xournalpp"
 alias "notebook=xournalpp"
@@ -147,14 +147,14 @@ alias "logout=wlogout"
 export PATH="$HOME:$PATH"
 export PATH="$HOME/QolScripts:$PATH"
 export PATH="$HOME/Pictures:$PATH"
-export PATH="/home/francois/Pictures/i3-video-wallpaper-main/:$PATH"
+export PATH="$HOME/Pictures/i3-video-wallpaper-main/:$PATH"
 export PATH="$(go env GOPATH)/bin:$PATH"
 export PATH="$HOME/.config/rofi/scripts:$PATH"
 export PATH="$HOME/.config/rofi/applets/bin:$PATH"
-export PATH=":/home/francois/Music:$PATH"
+export PATH=":$HOME/Music:$PATH"
 alias convert_folder="set_wallpapers.sh"
 
-export PATH=":/home/francois/.cargo/bin:$PATH"
+export PATH=":$HOME/.cargo/bin:$PATH"
 
 #printf "The mod key is Windows"
 #printf "Mod + Enter for terminal"
@@ -184,14 +184,14 @@ export EDITOR=nvim
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/francois/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/francois/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/francois/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "$HOME/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/francois/miniconda3/bin:$PATH"
+        export PATH="$HOME/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup

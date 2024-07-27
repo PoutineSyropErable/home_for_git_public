@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-current_dir="/home/francois/BatteryInfo"
+current_dir="$HOME/BatteryInfo"
 notification_sound="scifi-reject-notification.wav"
 
 
