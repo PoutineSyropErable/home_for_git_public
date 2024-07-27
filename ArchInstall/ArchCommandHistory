@@ -1,0 +1,57 @@
+history  grep pacman
+sudo pacman -Sy
+sudo pacman -S refind
+sudo pacman -S brightnessctl
+pacman -s brightnessctl
+sudo pacman -S system-monitor
+sudo pacman -S tree
+sudo pacman -S htop
+sudo pacman -S xorg
+sudo pacman -S xdyinfo xrandr sxet
+sudo pacman -S dunst
+sudo pacman -S bc
+sudo pacman -S xcb-util-xrm
+sudo pacman -S xcb-util-image
+sudo pacman -S pam
+sudo pacman -S libxkbcommon-x11
+sudo pacman -S libjpeg-turbo
+sudo pacman -S libev
+sudo pacman -S libdev
+sudo pacman -S cairo
+sudo pacman -S i3lock-color
+sudo pacman -S imagemagick
+pacman -S imagemagick
+sudo pacman -S ncmpcpp
+sudo pacman -S xorg-xkb-layouts
+sudo pacman -S man
+sudo pacman -S siji-fonts
+sudo pacman -S awesome-fonts
+sudo pacman -S nerd-fonts
+pacman -S nerd-fonts
+sudo pacman -S --needed base-devel
+sudo pacman -S paru
+pacman -S paru
+sudo pacman -S base-devel
+sudo pacman -S debugedit
+pacman -S debugedit
+sudo pacman -S which
+sudo pacman -S elfutils
+sudo pacman -S fakeroot
+sudo pacman -S git
+pacman -S git
+sudo pacman -S go
+pacman -S go
+sudo pacman -S dmenu
+sudo pacman -S betterlockscreen
+pacman -S betterlockscreen
+sudo pacman -S rofi
+sudo pacman -S fzf
+sudo pacman -S fish
+sudo pacman -S zsh
+sudo pacman -S feh
+sudo pacman -S firefox
+sudo pacman -S gedit
+sudo pacman -S mpc mpv
+sudo pacman -S polybar
+sudo pacman -S mpd
+sudo pacman -S picom

@@ -1,0 +1,6 @@
+[mp3 @ 0x5e2f40c63840] Failed to read frame size: Could not seek to 1026.
+My Music/.test.mp3: Invalid argument
+Failed to read bitrate for file: My Music/.test.mp3
+[mp3 @ 0x5fe5c77bb840] Failed to read frame size: Could not seek to 1026.
+My Music/.mp3: Invalid argument
+Failed to read bitrate for file: My Music/.mp3

@@ -1,0 +1,40 @@
+#!/bin/bash
+create_playlist "Anime/" "Classic Calm/" "Classic/" "Funny/" "Kung Fu Hustle/" "Star Wars/" "The Witcher 3/" ""
+
+
+music_dir="$HOME/Music/My Music"
+playlist_dir="$HOME/Music/Playlist"
+
+# Check if directories are provided as arguments
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <directory1> [<directory2> ...]"
+    exit 1
+fi
+
+# Iterate over each directory provided as argument
+for dir in "$@"
+do
+    # Check if directory exists under $music_dir
+    if [ ! -d "$music_dir/$dir" ]; then
+        echo "Error: Directory '$music_dir/$dir' not found!"
+        continue  # Skip to the next directory if current one doesn't exist
+    fi
+    
+    # Initialize playlist file name with full path
+    playlist_name="$playlist_dir/$(basename "$music_dir/$dir").m3u"
+    
+    # Create Playlist directory if it doesn't exist
+    mkdir -p "$playlist_dir"
+    
+    # Find all music files in the directory (non-recursively), sort them, and print full paths
+    find "$music_dir/$dir" -maxdepth 1 -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.ogg" -o -iname "*.wav" \) -print | sort > "$playlist_name"
+    
+    # Check if there are music files
+    if [ ! -s "$playlist_name" ]; then
+        echo "No music files found in '$dir'."
+        continue  # Skip to the next directory if no music files found
+    fi
+    
+    echo "Playlist '$playlist_name' created with $(wc -l < "$playlist_name") songs."
+done
+

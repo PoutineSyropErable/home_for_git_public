@@ -1,0 +1,138 @@
+#!/bin/bash
+
+skip_to_time=50%
+
+# Get the music directory from mpd.conf
+music_dir=$(awk -F '"' '/music_directory/ {print $2}' ~/.mpdrc)
+
+
+# Function to get absolute path from relative path
+get_absolute_path() {
+  local file="$1"
+  if [[ "$file" != /* ]]; then
+    # If file path is relative, convert to absolute path
+    file="$(readlink -f "$file")"
+  fi
+  echo "$file"
+}
+
+# Function to play the original file and prompt for confirmation
+play_original_and_confirm() {
+  local file="$1"
+  
+  echo "Attempting to play original file: $file"
+  mpc clear
+  mpc add "$file"
+  mpc play
+  mpc seek $skip_to_time
+  
+ #sleep 1  # Wait for 1 second
+  
+  read -p "Is the song correctly playing? (y/n): " user_input
+  if [ "$user_input" == "y" ]; then
+    echo "Song is playing correctly. Exiting."
+    exit 0
+  else
+    echo "Continuing with conversion process."
+  fi
+
+	mpc stop
+  
+}
+
+
+# Check if the file name is provided as an argument
+if [ -z "$1" ]; then
+  echo "Please provide a file name."
+  exit 1
+fi
+
+# Get the absolute path of the file
+file=$(get_absolute_path "$1")
+
+# Ensure the file exists
+if [ ! -f "$file" ]; then
+  echo "File not found: $file"
+  exit 1
+fi
+
+#convert_file to relative path:
+relative_path="${file#$music_dir/}"
+
+printf "\n\n start file in music path: $relative_path\n\n"
+
+# Play the original file and prompt for confirmation
+play_original_and_confirm "$relative_path"
+
+# Generate the new file name
+new_file="${file%.mp3}.test.mp3"
+
+# Convert the file using ffmpeg (assuming this step is required)
+ffmpeg -i "$file" -c:a libmp3lame "$new_file"
+
+if [ -z "$music_dir" ]; then
+  echo "Could not determine the music directory from mpd.conf."
+  exit 1
+fi
+
+# Ensure the new file is within the music directory
+if [[ "$new_file" != "$music_dir"* ]]; then
+  echo "Converted file is not within the music directory."
+  exit 1
+fi
+
+# Compute the relative path for the converted file
+relative_path="${new_file#$music_dir/}"
+
+echo "Music directory: $music_dir"
+echo "Original File: $file"
+echo "Converted File: $new_file"
+echo "Relative path for converted file: $relative_path"
+
+# Update MPD database
+echo "Updating MPD database..."
+mpc update --wait
+
+# Clear current playlist, add new file, and play it
+echo "Clearing current playlist..."
+mpc clear
+
+
+printf "\n\n start file in music path: $relative_path\n\n"
+
+echo "Adding converted file to playlist..."
+mpc add "$relative_path"
+
+echo "Starting playback..."
+mpc play
+mpc seek $skip_to_time
+
+# Add a delay to ensure the song starts playing
+#sleep 5
+
+# Prompt the user for confirmation
+read -p "Do you want to replace the original file with the converted file? (y/n): " user_input
+
+if [ "$user_input" == "y" ]; then
+  # Replace the original file with the converted file
+  mv "$new_file" "$file"
+  
+  # Update MPD database
+  mpc update --wait
+  ~/Music/update_playlists  # Assuming this function is defined elsewhere
+  
+  # Clear playlist, add original file, and play it
+  mpc clear
+  mpc add "$relative_path"
+  mpc play
+else
+  # Remove the converted file
+  printf "\nAh it's sad it couldn't be repaired. Writting to logs"
+
+  printf "couldn't repair: $relative_path\n" >> "$HOME/Music/song_repair_errors.log"
+  rm "$new_file"
+fi
+
+# Exit the script
+exit 0
+

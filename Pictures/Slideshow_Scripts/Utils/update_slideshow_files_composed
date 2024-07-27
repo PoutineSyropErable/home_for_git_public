@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# Default directory containing original images (if no path provided)
+default_image_dir="Hot Girls"
+
+# Screen resolution (adjust according to your screen)
+screen_width=1920
+screen_height=1200
+
+# Path to the combined image
+combined_image="$HOME/Pictures/Desktop Background Slideshow/Combined/combined_image.png"
+
+# Directory containing original images (use default if not provided)
+image_dir="$HOME/Pictures/Desktop Background Slideshow/${1:-$default_image_dir}/"
+
+# Directory to move resized images to
+destination_dir="${image_dir}composed/"
+
+printf "\nReading from $image_dir\n"
+printf "Writing to $destination_dir\n\n"
+
+# Create destination directory if it doesn't exist
+mkdir -p "$destination_dir"
+
+mkdir -p "$destination_dir/temp"
+
+i=0
+
+# Get the total number of images to process
+total_files=$(find "$image_dir" -maxdepth 1 -iregex '.*\.\(jpg\|jpeg\|png\)$' | wc -l)
+
+
+
+# Create a transparent background
+transparent_background="$destination_dir/temp/transparent_background.png"
+magick -size "${screen_width}x${screen_height}" xc:"rgba(100,128,200,0)" "$transparent_background"
+
+# Composite the resized image over the transparent background
+temp_composite="$destination_dir/temp/temp_composite.png"
+
+# Loop through each image in the directory
+cd "$image_dir" || exit
+shopt -s nocaseglob  # Case insensitive globbing
+for file in *.{jpg,jpeg,png}; do
+    if [ -f "$file" ]; then
+        output_file="${destination_dir}$(basename "$file" .${file##*.}).png"
+
+        if [ -f "$output_file" ]; then
+            printf "Skipping conversion for $file, $output_file already exists.\n\n"
+            continue
+        fi
+
+        i=$((i+1))
+        echo "Converting $i/$total_files: $file"
+
+        # Get original dimensions of the image
+        original_width=$(identify -format "%w" "$file")
+        original_height=$(identify -format "%h" "$file")
+
+        # Calculate aspect ratios
+        aspect_ratio_orig=$(bc <<< "scale=10; $original_width / $original_height")
+        aspect_ratio_new=$(bc <<< "scale=10; $screen_width / $screen_height")
+
+        if (( $(bc <<< "$aspect_ratio_orig > $aspect_ratio_new") )); then
+            # Original image is wider than the desired ratio, crop the sides
+            resize_option="${screen_width}x"
+            magick "$file" -resize "$resize_option" -gravity center -crop "${screen_width}x$screen_height+0+0" +repage "$output_file"
+        else
+            # Original image is taller than or equal to the desired ratio, crop the top and bottom
+            resize_option="x$screen_height"
+            magick "$file" -resize "$resize_option" -gravity center -crop "${screen_width}x$screen_height+0+0" +repage "$output_file"
+        fi
+
+
+        magick "$transparent_background" "$output_file" -gravity center -composite "$temp_composite"
+
+        #Composite the temporary composite image over the combined image
+        magick composite -gravity center "$temp_composite" "$combined_image" "$output_file"
+        #magick composite -gravity center 1.png 2.png output.png
+
+
+        echo "Combined image updated with: $output_file\n\n"
+
+        # Optional: Uncomment to remove original file after resizing
+        # rm "$file"
+
+        # Optional: Uncomment to set the processed image as wallpaper
+        # feh --bg-center "$combined_image"
+
+        # Optional: Add a delay between processing images (adjust as needed)
+        # sleep 2
+    else
+        echo "$file not found or not a regular file"
+    fi
+done
+
+# Print completion message
+printf "\n\nConversion and resizing completed. $i images were converted.\n\n"
+
+rm "$destination_dir/temp/temp_composite.png" 
+
+rm "$destination_dir/temp/transparent_background.png" 

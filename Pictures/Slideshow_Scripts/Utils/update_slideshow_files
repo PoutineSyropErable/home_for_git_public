@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Default directory containing original images (if no path provided)
+default_image_dir="Cool Pictures"
+
+# Screen resolution (adjust according to your screen)
+screen_width=1920
+screen_height=1200
+
+# Directory containing original images (use default if not provided)
+image_dir="$HOME/Pictures/Desktop Background Slideshow/${1:-$default_image_dir}/"
+
+# Directory to move resized images to
+destination_dir="${image_dir}resized/"
+
+printf "\nReading from $image_dir\n"
+printf "Writing to $destination_dir\n\n"
+
+# Create destination directory if it doesn't exist
+mkdir -p "$destination_dir"
+
+i=0
+
+# Get the total number of images to process
+total_files=$(find "$image_dir" -maxdepth 1 -iregex '.*\.\(jpg\|jpeg\|png\)$' | wc -l)
+
+# Loop through each image in the directory
+cd "$image_dir" || exit
+shopt -s nocaseglob  # Case insensitive globbing
+for file in *.{jpg,jpeg,png}; do
+    if [ -f "$file" ]; then
+        output_file="${destination_dir}$(basename "$file" .${file##*.}).png"
+
+        if [ -f "$output_file" ]; then
+            printf "Skipping conversion for $file, $output_file already exists.\n\n"
+            continue
+        fi
+
+        i=$((i+1))
+        printf "Converting $i/$total_files: $file\n\n"
+
+        # Get original dimensions of the image
+        original_width=$(identify -format "%w" "$file")
+        original_height=$(identify -format "%h" "$file")
+
+        # Calculate new dimensions
+        new_width=$screen_width
+        new_height=$screen_height
+
+        # Calculate aspect ratios
+        aspect_ratio_orig=$(bc <<< "scale=10; $original_width / $original_height")
+        aspect_ratio_new=$(bc <<< "scale=10; $new_width / $new_height")
+
+        if (( $(bc <<< "$aspect_ratio_orig > $aspect_ratio_new") )); then
+            # Original image is wider than the desired ratio, crop the width
+            resize_option="${new_width}x"
+            gravity_option="Center"
+        else
+            # Original image is taller than the desired ratio, crop the height
+            resize_option="x$new_height"
+            gravity_option="Center"
+        fi
+
+        # Resize and pad the image, convert to PNG format
+        magick "$file" -resize "$resize_option" -gravity "$gravity_option" -background black -extent "$new_width"x"$new_height" "$output_file"
+
+        # Optional: Uncomment to remove original file after resizing
+        # rm "$file"
+
+        # Optional: Uncomment to set the processed image as wallpaper
+        # feh --bg-center "$output_file"
+
+        # Optional: Add a delay between processing images (adjust as needed)
+        # sleep 2
+    else
+        echo "$file not found or not a regular file"
+    fi
+done
+
+# Print completion message
+printf "\n\nConversion and resizing completed. $i images were converted.\n\n"
+

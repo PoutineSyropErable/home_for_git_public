@@ -1,0 +1,1 @@
+/home/francois/.config/lf/lfrc

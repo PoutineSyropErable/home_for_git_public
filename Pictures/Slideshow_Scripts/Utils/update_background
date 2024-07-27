@@ -1,0 +1,16 @@
+#!/bin/bash
+
+export PATH="$HOME/Pictures:$PATH"
+
+
+# Creating an array
+my_array=("Cool Pictures" "Hot Shrek Pictures")
+
+# Looping over array elements
+for element in "${my_array[@]}"
+do
+	printf -- "\n\n------------------------------------------------------------------------\n"
+    echo "Processing: $element"
+   ./update_slideshow_files "$element"
+	printf -- "----------------------------     END   --------------------------------------\n"
+done

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Send the get_property command to mpv to retrieve the current volume
+response=$(echo '{ "command": ["get_property", "volume"] }' | socat - /tmp/mpvsocket)
+
+# Extract the volume value from the response using jq
+volume=$(echo $response | jq .data)
+
+# Check if jq extracted the value successfully
+if [ -z "$volume" ]; then
+  echo "ERROR: Failed to retrieve volume"
+  exit 1
+fi
+
+# Output the volume as an integer followed by %
+volume_int=$(printf "%.0f" $volume)
+echo "${volume_int}%"

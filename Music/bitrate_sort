@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Check if ffprobe is installed
+if ! command -v ffprobe &> /dev/null
+then
+    echo "ffprobe could not be found. Please install ffmpeg package."
+    exit 1
+fi
+
+# Set the directory to process, default to the current directory if not provided
+directory="${1:-.}"
+
+# Define the output paths
+output_dir=~/Music
+sorted_file="$output_dir/__bitrate_sort"
+error_log="$output_dir/__bitrate_log"
+base_dir="$output_dir/My Music"
+
+# Create a temporary file to store filenames and bitrates
+temp_file=$(mktemp)
+
+# Clear previous error log
+> "$error_log"
+
+# Get the list of audio files and count them
+audio_files=$(find "$directory" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.wav" -o -iname "*.aac" -o -iname "*.m4a" -o -iname "*.ogg" \))
+total_files=$(echo "$audio_files" | wc -l)
+current_file_number=0
+
+# Iterate over all audio files in the specified directory
+echo "$audio_files" | while read -r file; do
+    # Check if the file exists to handle the case of no matching files
+    if [ -e "$file" ]; then
+        current_file_number=$((current_file_number + 1))
+        echo "Processing file $current_file_number/$total_files: $file"
+
+        # Get the bitrate of the file using ffprobe
+        bitrate=$(ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 "$file" 2>>"$error_log")
+        
+        # Check if ffprobe was successful
+        if [ $? -eq 0 ]; then
+            # Convert bitrate to kbps if it's not already
+            bitrate=$((bitrate / 1000))
+            # Get the relative path from the base directory
+            relative_path=$(realpath --relative-to="$base_dir" "$file")
+            # Print the bitrate and relative path to the temporary file in the desired format
+            echo "Bitrate: $bitrate kbps | Song name: $relative_path" >> "$temp_file"
+        else
+            # Log the error for the current file
+            echo "Failed to read bitrate for file: $file" >> "$error_log"
+        fi
+    fi
+done
+
+# Sort the temporary file by bitrate and save to __bitrate_sort.txt
+sort -n -k 2,2 "$temp_file" > "$sorted_file"
+
+# Remove the temporary file
+rm "$temp_file"
+
+echo "Sorted list saved to $sorted_file"
+echo "Errors logged to $error_log"

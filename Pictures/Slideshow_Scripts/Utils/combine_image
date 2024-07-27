@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Check if at least two arguments are provided
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 <left_image> <right_image> [output_image]"
+    exit 1
+fi
+
+# Validate left and right image arguments
+left_image="$1"
+right_image="$2"
+
+if ! [ -f "$left_image" ] || ! [ -f "$right_image" ]; then
+    echo "Error: Both arguments must be valid image files."
+    exit 1
+fi
+
+# Determine output image path with default
+output_image="${3:-$HOME/Pictures/Desktop Background Slideshow/Combined/combined_image.png}"
+
+# Create output directory if it doesn't exist
+output_dir=$(dirname "$output_image")
+mkdir -p "$output_dir"
+
+# Create a temporary directory for intermediate files
+temp_dir="./temp"
+mkdir -p "$temp_dir"
+
+# Dimensions of the output image
+output_width=1980
+output_height=1200
+half_width=$((output_width / 2))
+
+# Resize the images to have the same height
+magick "$left_image" -resize x${output_height} "$temp_dir/temp_left_resized.png"
+magick "$right_image" -resize x${output_height} "$temp_dir/temp_right_resized.png"
+
+# Get the widths of the resized images
+left_width=$(identify -format "%w" "$temp_dir/temp_left_resized.png")
+right_width=$(identify -format "%w" "$temp_dir/temp_right_resized.png")
+
+# Calculate the new widths to fit within the available space
+new_left_width=$((half_width))
+new_right_width=$((half_width))
+
+# Resize the images to fit within the calculated widths
+magick "$temp_dir/temp_left_resized.png" -resize ${new_left_width}x${output_height} "$temp_dir/temp_left_final.png"
+magick "$temp_dir/temp_right_resized.png" -resize ${new_right_width}x${output_height} "$temp_dir/temp_right_final.png"
+
+# Create a background of the required size with RGB (100,128,200)
+magick -size ${output_width}x${output_height} xc:"rgb(100,128,200)" -colorspace RGB "$temp_dir/temp_background.png"
+
+# Composite the left image onto the background
+magick "$temp_dir/temp_background.png" "$temp_dir/temp_left_final.png" -gravity West -geometry +0+0 -composite "$temp_dir/temp_with_left.png"
+
+# Composite the right image onto the background
+magick "$temp_dir/temp_with_left.png" "$temp_dir/temp_right_final.png" -gravity East -geometry +0+0 -composite "$temp_dir/final_combined_image.png"
+
+# Copy the final result to the output directory
+cp "$temp_dir/final_combined_image.png" "$output_image"
+
+echo "Combined image created: $output_image"
+echo "Temporary combined image available at: $temp_dir/final_combined_image.png"
+

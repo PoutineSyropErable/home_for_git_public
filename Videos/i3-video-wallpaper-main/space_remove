@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cd $1
+
+# Loop through all files in the current directory
+for file in *; do
+    # Check if it's a regular file (not a directory)
+    if [[ -f "$file" ]]; then
+        # Replace spaces and commas with underscores in the filename
+        newname=$(echo "$file" | tr ' ,' '_')
+        # Rename the file
+        mv "$file" "$newname"
+        echo "Renamed $file to $newname"
+    fi
+done
+
