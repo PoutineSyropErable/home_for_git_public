@@ -32,7 +32,9 @@ notify-send -u low -t 2000 "Mouse speed changed to $1"
 
 # Mouse speed (adjust the value to your preference)
 MOUSE_SPEED=$1
-MOUSE_NAME="HP, Inc HyperX Pulsefire Haste"
+MOUSE_NAME2="HP, Inc HyperX Pulsefire Haste"
+MOUSE_NAME="Compx 2.4G Receiver Mouse"
+
 
 # Get the device ID for HP HyperX Pulsefire Haste under the virtual core pointer category
 DEVICE_ID=$(xinput list | grep -i "$MOUSE_NAME" | grep -i 'pointer' | grep -vi "Consumer" |  grep -Eo 'id=[0-9]+' | grep -Eo '[0-9]+' | head -1)

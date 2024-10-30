@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# Base directory
+music_dir="/home/francois/Music/My Music"
+
+
+# Function to re-encode an .mp3 file in place
+reencode_mp3_in_place() {
+    local file="$1"
+
+    if [ -z "$file" ]; then
+        echo "Usage: reencode_mp3_in_place <file>"
+        return 1
+    fi
+
+    if [ ! -f "$file" ]; then
+        echo "File does not exist: $file"
+        return 1
+    fi
+
+    local temp_file="${file}.tmp"
+
+    echo "Re-encoding $file..."
+
+    # Re-encode using ffmpeg (adjust bitrate and codec as needed)
+    ffmpeg -i "$file" -codec:a libmp3lame -b:a 192k -f mp3 "$temp_file"
+
+    if [ $? -eq 0 ]; then
+        # Replace the original file with the re-encoded file
+        mv "$temp_file" "$file"
+        echo "Re-encoding successful: $file"
+    else
+        echo "Re-encoding failed for: $file"
+        rm -f "$temp_file"
+        return 1
+    fi
+}
+
+
+# Function to repair all .mp3 files in a directory
+repair_directory() {
+    local dir_path="$1"
+
+    if [ -z "$dir_path" ]; then
+        echo "Usage: repair_directory <directory>"
+        return 1
+    fi
+
+    if [ ! -d "$dir_path" ]; then
+        echo "Directory does not exist: $dir_path"
+        return 1
+    fi
+
+    echo "Repairing .mp3 files in $dir_path..."
+
+    # Find all .mp3 files in the given directory (max depth 1)
+    find "$dir_path" -maxdepth 1 -type f -iname "*.mp3" | while read -r music_file; do
+        reencode_mp3_in_place "$music_file"
+    done
+
+    echo "Repair process completed for directory $dir_path."
+}
+
+
+
+# Function to perform BFS and return sorted directories
+bfs_directories() {
+    local base_dir="$1"
+    local -n result=$2
+
+    # Array to store directories
+    local directories=()
+
+    # BFS implementation using a queue
+    local queue=("$base_dir")
+
+    while [ ${#queue[@]} -gt 0 ]; do
+        local current_dir="${queue[0]}"
+        queue=("${queue[@]:1}")  # Remove the first element from the queue
+
+        # Process the current directory
+        directories+=("$current_dir")
+
+        # Add subdirectories to the queue
+        for dir in "$current_dir"/*/; do
+            [ -d "$dir" ] && queue+=("$dir")
+        done
+    done
+
+    # Sort directories alphabetically
+    IFS=$'\n' result=($(sort <<<"${directories[*]}"))
+    unset IFS
+}
+
+main() {
+    # Find all the music directories:
+    organised_music_directories=()
+    bfs_directories "$music_dir" organised_music_directories
+
+    # Print the sorted directories
+    printf -- "Directories found (sorted alphabetically):\n"
+    for dir in "${organised_music_directories[@]}"; do
+        echo "$dir"
+    done
+
+    # Repair .mp3 files in each directory
+    for dir in "${organised_music_directories[@]}"; do
+        repair_directory "$dir"
+    done
+}
+
+#-----------------------------------END OF SCRIPT
+main
+

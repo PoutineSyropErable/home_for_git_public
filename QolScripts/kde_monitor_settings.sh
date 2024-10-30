@@ -15,8 +15,8 @@ kcmshell6 kcm_kscreen
 
 sleep 1
 
-$HOME/QolScripts/touchscreen_fix.sh
+/home/francois/QolScripts/touchscreen_fix.sh
 
-$HOME/.config/polybar.old/polylaunch bar1
-$HOME/.config/polybar.old/polylaunch bar2
+/home/francois/.config/polybar.old/polylaunch bar1
+/home/francois/.config/polybar.old/polylaunch bar2
 

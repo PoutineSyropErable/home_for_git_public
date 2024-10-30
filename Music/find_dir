@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Base directory
+music_dir="/home/francois/Music/My Music"
+
+# Temporary file to store directories
+temp_file=$(mktemp)
+
+# Array to store directories
+directories=()
+
+# BFS implementation using a queue
+queue=("$music_dir")
+
+while [ ${#queue[@]} -gt 0 ]; do
+    current_dir="${queue[0]}"
+    queue=("${queue[@]:1}")  # Remove the first element from the queue
+
+    # Process the current directory
+    directories+=("$current_dir")
+
+    # Add subdirectories to the queue
+    for dir in "$current_dir"/*/; do
+        [ -d "$dir" ] && queue+=("$dir")
+    done
+done
+
+# Sort directories alphabetically
+IFS=$'\n' sorted_dirs=($(sort <<<"${directories[*]}"))
+unset IFS
+
+# Print the sorted directories
+printf -- "Directories found (sorted alphabetically):\n"
+for dir in "${sorted_dirs[@]}"; do
+    echo "$dir"
+done
+
+# Cleanup
+rm -f "$temp_file"
+

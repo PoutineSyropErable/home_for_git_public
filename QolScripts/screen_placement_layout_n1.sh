@@ -14,4 +14,4 @@ xrandr --output DP-1 --mode 2560x1440 --rate 75 --right-of HDMI-1
 #dunst &
 
 
-$HOME/QolScripts/touchscreen_fix.sh
+/home/francois/QolScripts/touchscreen_fix.sh

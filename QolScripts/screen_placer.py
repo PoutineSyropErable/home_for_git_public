@@ -182,7 +182,7 @@ def main(main_screen, other_screen):
             run_bash_command(command2)
 
             # Fix the touchscreen
-            command3 = f"$HOME/QolScripts/touchscreen_fix.sh"
+            command3 = f"/home/francois/QolScripts/touchscreen_fix.sh"
             run_bash_command(command3)
             
             run_bash_command(f"xrandr --output eDP-1 --primary --auto")
